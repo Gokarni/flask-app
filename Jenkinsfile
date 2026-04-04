@@ -1,0 +1,63 @@
+pipeline{
+    agent any
+    environment{
+        DOCKERCRED="docker-cred"
+        ec2_user="ubuntu"
+        IP="3.106.182.171"
+
+        frontend_image="gokarni/frontend"
+    }
+    stages{
+        stage("Checkout code"){
+            steps{
+            git branch: 'main', credentialsId: 'github', url: 'https://github.com/Gokarni/flask-app.git'
+            }
+
+        }
+        stage("Build Image") {
+            steps{
+            script{
+            docker.build("${frontend_image}:latest")
+            }
+            }
+        }
+        stage("Push Image") {
+            steps{
+                withCredentials([usernamePassword(credentialsId:"${DOCKERCRED}",passwordVariable:"PASSWORD", usernameVariable:"USERNAME")])
+                {
+                    sh """
+                    echo $PASSWORD | docker login -u $USERNAME --password-stdin
+                    docker push ${frontend_image}:latest
+                    """
+
+                }
+            }
+        }
+        stage("Deploy Image"){
+            steps{
+                sshagent(["ec2-agent"]){
+                    sh """ 
+                    scp -o StrictHostKeyChecking=no .env ${ec2_user}@${IP}:/home/${ec2_user}/.env
+                    ssh  -o StrictHostKeyChecking=no ${ec2_user}@${IP} '
+                    docker network inspect flask-network >/dev/null 2>&1 || docker network create flask-network
+                    docker pull ${frontend_image}:latest
+                    # Backend 
+                    docker stop mysql || true
+                    docker rm mysql || true
+                    docker run -d --network=flask-network --name=mysql -e MYSQL_ROOT_PASSWORD=admin mysql
+                    
+                    # Froentend
+                    docker stop frontend || true
+                    docker rm frontend || true
+                    docker run -d --name=frontend --network=flask-network --env-file /home/ubuntu/.env -p 5000:5000 ${frontend_image}:latest
+                    
+                    '
+                    """
+                    
+                }
+            }
+        
+        }
+        
+    }
+}
