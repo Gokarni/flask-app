@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: flask-svc
+  namespace: flask
+spec:
+  selector:
+    app: flask
+  ports:
+  - port: 5000
+    targetPort: 5000
