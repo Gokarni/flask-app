@@ -14,7 +14,7 @@ pipeline{
             }
 
         }
-        stage("Build Image") {
+        stage("Build Imagee") {
             steps{
             script{
             docker.build("${frontend_image}:latest")
