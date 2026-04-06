@@ -22,7 +22,7 @@ pipeline{
             }
             }
         }
-        stage("Push Image") {
+        stage("Push Imagee") {
             steps{
                 script{
                     def dockeruser=params.DOCKER_UNAME
