@@ -23,21 +23,23 @@ pipeline{
         }
         stage("Push Image") {
             steps{
-                withCredentials([usernamePassword(credentialsId:"${DOCKERCRED}",passwordVariable:"PASSWORD", usernameVariable:"USERNAME")])
-                {
+                script{
+                    def dockeruser=params.DOCKER_UNAME
+                    def dockerpass=params.DOCKER_PASS
                     sh """
-                    echo $PASSWORD | docker login -u $USERNAME --password-stdin
+                    echo ${dockerpass} | docker login -u ${dockeruser} --password-stdin
                     docker push ${frontend_image}:latest
                     """
-
                 }
             }
         }
         stage("Deploy Image"){
             steps{
+                script{ 
+                def dbpassword = params.MYSQL_PASSWORD 
                 sshagent(["ec2-agent"]){
                     sh '''
-                    ssh  -o StrictHostKeyChecking=no ${ec2_user}@${IP}  '
+                    ssh  -o StrictHostKeyChecking=no ${ec2_user}@${IP} << EOF
                     kubectl delete -f Namespace.yml || true
                     kubectl delete -f mysql-deployment.yml || true
                     kubectl delete -f mysql-pv.yml || true
@@ -64,14 +66,14 @@ pipeline{
 
                     for pod in $(kubectl get pods -n flask -l app=mysql -o jsonpath='{.items[*].metadata.name}')
                     do
-                        kubectl exec -i $pod -n flask -- mysql -u root -padmin < message.sql
+                        kubectl exec -i $pod -n flask -- mysql -u root -p${dbpassword} < message.sql
                     done
 
                     kubectl port-forward svc/flask-svc -n flask 5000:5000 --address=0.0.0.0
 
-                    '
+                    EOF
                     '''
-                    
+                }  
                 }
             }
         
