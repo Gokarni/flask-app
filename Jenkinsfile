@@ -26,11 +26,11 @@ pipeline{
     
         stage("Push Image") {
             steps{
-                withCredentials{[usernamePassword(
+                withCredentials([usernamePassword(
                     credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'
-                )]{
-                    sh ''' echo "$DOCKERA_PASS" | docker login -u "$DOCKER_USER" --passsword-stdin
-                    docker push ${IMAGE}:${TAG}
+                )] ) {
+                    sh ''' echo "$DOCKERA_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push ${frontend_image}:${TAG}
                     docker logout'''
                 }
                 }
@@ -56,5 +56,3 @@ pipeline{
             }
         
         }
-        
-}
