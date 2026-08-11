@@ -29,7 +29,7 @@ pipeline{
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'
                 )] ) {
-                    sh ''' echo "$DOCKERA_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    sh ''' echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                     docker push ${frontend_image}:${TAG}
                     docker logout'''
                 }
