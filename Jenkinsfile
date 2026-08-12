@@ -55,6 +55,8 @@ pipeline{
                         withCredentials([
                     file(credentialsId: 'kubeconfig', variable:'KUBECONFIG')
                     ]){
+                            script{ 
+                                def dbpassword = params.MYSQL_PASSWORD
                         sh '''
                         export KUBECONFIG="$KUBECONFIG"
                         kubectl rollout status deployment/flask-deploy -n ${NAMESPACE} --timeout=120s
@@ -62,6 +64,7 @@ pipeline{
                         kubectl get svc -n ${NAMESPACE}
                         '''
                     }
+                        }
                 }
             }
     }
