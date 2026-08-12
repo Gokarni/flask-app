@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: flask-cont
-        image: gokarni/frontend
+        image: gokarni/frontend123
         ports:
         - containerPort: 5000
         env:
