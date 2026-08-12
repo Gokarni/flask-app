@@ -45,7 +45,7 @@ pipeline{
                 sh '''
                 export KUBECONFIG="$KUBECONFIG"
                 kubectl apply -f k8s/
-                kubectl set image deployment/flask-deploy flask-cont=${fronted_image}:${TAG} -n ${NAMESPACE}
+                kubectl set image deployment/flask-deploy flask-cont=${frontend_image}:${TAG} -n ${NAMESPACE}
                     '''
                 }  
                 }
