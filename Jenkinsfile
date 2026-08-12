@@ -52,7 +52,11 @@ pipeline{
             }
                 stage('Verify Deployment'){
                     steps{
+                        withCredentials([
+                    file(credentialsId: 'kubeconfig', variable:'KUBECONFIG')
+                    ]){
                         sh '''
+                        export KUBECONFIG="$KUBECONFIG"
                         kubectl rollout status deployment/flask-deploy -n ${NAMESPACE} --timeout=120s
                         kubectl get pods -n ${NAMESPACE}
                         kubectl get svc -n ${NAMESPACE}
