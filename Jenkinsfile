@@ -38,12 +38,17 @@ pipeline{
                 
         stage("Deploy Image"){
             steps{
+                withCredentials([
+                    file(credentialsId: 'kubeconfig', variable:'KUBECONFIG')
+                ]){
                 sh '''
+                export KUBECONFIG="$KUBECONFIG"
                 kubectl apply -f k8s/
                 kubectl set image deployment/flask-deploy flask-deploy=${IMAGE}:${TAG} -n ${NAMESPACE}
                     '''
                 }  
                 }
+            }
                 stage('Verify Deployment'){
                     steps{
                         sh '''
