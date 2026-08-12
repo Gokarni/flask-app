@@ -58,7 +58,7 @@ pipeline{
                         sh '''
                         export KUBECONFIG="$KUBECONFIG"
                         kubectl rollout status deployment/flask-deploy -n ${NAMESPACE} --timeout=120s
-                        kubectl get pods -n ${NAMESPACE}
+                        kubectl get pods -n ${NAMESPACE} --timeout=120s
                         kubectl get svc -n ${NAMESPACE}
                         '''
                     }
