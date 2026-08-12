@@ -55,20 +55,15 @@ pipeline{
                         withCredentials([
                     file(credentialsId: 'kubeconfig', variable:'KUBECONFIG')
                     ]){
-                            script{ 
-                                def dbpassword = params.MYSQL_PASSWORD
+            
                         sh '''
                         export KUBECONFIG="$KUBECONFIG"
                         kubectl rollout status deployment/flask-deploy -n ${NAMESPACE} --timeout=120s
                         kubectl get pods -n ${NAMESPACE}
                         kubectl get svc -n ${NAMESPACE}
-                        for pod in $(kubectl get pods -n flask -l app=mysql -o jsonpath='{.items[*].metadata.name}')
-                        do
-                        kubectl exec -i $pod -n flask -- mysql -u root -p${dbpassword} < message.sql
-                        done
+                    
                         '''
                         
-                    }
                         }
                 }
             }
