@@ -6,6 +6,7 @@ pipeline{
         ec2_user="ubuntu"
         IP="3.24.179.149"
         TAG="${BUILD_NUMBER}"
+        NAMESPACE="flask"
 
         frontend_image="gokarni/frontend"
     }
